@@ -1,58 +1,66 @@
 import tkinter as tk
-from tkinter import ttk, messagebox, StringVar, IntVar, Toplevel, Label, Entry, Button, Frame
+from tkinter import ttk, messagebox, StringVar
 import mysql.connector
-from feedback import show_feedback
+
+# Import necessary modules
 from menu import show_menu
 from order import show_orders
+from place_order_page import place_order
+from customers import show_customers
+from staff import show_staff
 
+# Establish database connection
 con = mysql.connector.connect(
     host="localhost",
     user="root",
     password="Sepaugtf25",  # Replace with your actual password
     database="newrest1"  # Replace with your database
 )
-# def show_menu():
-#     # Code to display the menu page
-#     pass
+
+def menu_page():
+    show_menu(con)
 
 def order_page():
-    # Code to display the orders page
     show_orders(con)
-    pass
 
-# def show_delivery():
-#     # Code to display the delivery page
-#     pass
+def placeorder_page():
+    place_order(con)
 
-# def show_sales():
-#     # Code to display the sales page
-#     pass
+def customers_page():
+    show_customers(con)
 
-# def show_feedback():
-#     # Code to display the feedback page
-#     pass
+def staff_page():
+    show_staff(con)
 
 def enter():
-    # Create a new window
-    root = tk.Toplevel()  # Use Toplevel to create a new window while keeping the main window active
-    root.title("OPtions")
-    root.geometry("400x300")
+    # Create a new window for options
+    root = tk.Toplevel()
+    root.title("Restaurant Management - Dashboard")
+    root.geometry("600x400")
+    root.configure(bg="#f4f4f4")
 
-    # Add buttons for different functionalities
-    Button(root, text="Orders", command=order_page).place(x=150, y=100)
+    # Add title label
+    ttk.Label(root, text="Restaurant Management System", font=("Helvetica", 16, "bold")).pack(pady=10)
 
-    # Add more buttons as needed (commented out here)
-    # Button(root, text="Menu", command=show_menu).place(x=50, y=150)
-    # Button(root, text="Delivery", command=show_delivery).place(x=250, y=150)
-    # Button(root, text="Sales", command=show_sales).place(x=350, y=150)
-    # Button(root, text="Feedback", command=show_feedback).place(x=450, y=150)
+    # Frame for buttons
+    button_frame = ttk.Frame(root, padding=10)
+    button_frame.pack(expand=True)
+
+    # Add buttons with consistent style
+    ttk.Button(button_frame, text="Orders", command=order_page).grid(row=0, column=0, padx=20, pady=10)
+    ttk.Button(button_frame, text="Staff", command=staff_page).grid(row=0, column=1, padx=20, pady=10)
+    ttk.Button(button_frame, text="Menu", command=menu_page).grid(row=1, column=0, padx=20, pady=10)
+    ttk.Button(button_frame, text="Place Order", command=placeorder_page).grid(row=1, column=1, padx=20, pady=10)
+    ttk.Button(button_frame, text="Customers", command=customers_page).grid(row=2, column=0, padx=20, pady=10)
+
+    # Optional: Add more buttons as needed
+    # ttk.Button(button_frame, text="Feedback", command=show_feedback).grid(row=2, column=1, padx=20, pady=10)
 
     root.mainloop()
 
-flag=0
 def submit():
-    username = a.get()
-    password = b.get()
+    username = a.get().strip()
+    password = b.get().strip()
     if not username or not password:
         messagebox.showwarning("Input Error", "Please enter both username and password.")
         return
@@ -62,26 +70,34 @@ def submit():
         result = cur.fetchone()
         if result:
             messagebox.showinfo("Login Successful", "Welcome!")
-            flag=1
             enter()
         else:
             messagebox.showwarning("Login Failed", "Invalid username or password.")
     except mysql.connector.Error as err:
         messagebox.showerror("Database Error", f"Error: {err}")
-# if(flag==1):
-#     enter()
-# else:
-#     print("NO entry")
+
+# Main Login Page
 r = tk.Tk()
-r.title("LOGIN RESTAURANT MANAGEMENT SYSTEM")
+r.title("Login - Restaurant Management System")
 r.geometry("400x300")
+r.configure(bg="#f4f4f4")
 a = StringVar()
 b = StringVar()
-Label(r, text="RESTAURANT ADMIN LOGIN").pack()
-Label(r, text="USERNAME").place(x=100, y=100)
-Entry(r, textvariable=a).place(x=170, y=100)
-Label(r, text="PASSWORD").place(x=100, y=140)
-Entry(r, textvariable=b, show="*").place(x=170, y=140)
-Button(r, text="SUBMIT", command=submit).place(x=180, y=180)
-con.commit()
+
+# Title label
+ttk.Label(r, text="RESTAURANT ADMIN LOGIN", font=("Helvetica", 14, "bold")).pack(pady=20)
+
+# Username entry
+ttk.Label(r, text="USERNAME:").place(x=100, y=100)
+username_entry = ttk.Entry(r, textvariable=a)
+username_entry.place(x=170, y=100)
+
+# Password entry
+ttk.Label(r, text="PASSWORD:").place(x=100, y=140)
+password_entry = ttk.Entry(r, textvariable=b, show="*")
+password_entry.place(x=170, y=140)
+
+# Submit button
+ttk.Button(r, text="SUBMIT", command=submit).place(x=170, y=180)
+
 r.mainloop()
