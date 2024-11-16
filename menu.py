@@ -55,13 +55,20 @@ def show_menu(con):
             messagebox.showerror("Input Error", "Price must be a numeric value.")
             return
 
+        
         cur = con.cursor()
-        cur.execute("INSERT INTO Item (Name, Price) VALUES (%s, %s)", (name, price))
+            # Call the stored procedure
+        cur.callproc('AddMenuItem', [name, price])
         con.commit()
         messagebox.showinfo('Success', "Item added!")
         menu_name_entry.delete(0, 'end')
         menu_price_entry.delete(0, 'end')
-        tree.insert('', 'end', values=(cur.lastrowid, name, price))
+
+            # Fetch the last inserted item to update the UI
+        cur.execute("SELECT LAST_INSERT_ID()")
+        item_id = cur.fetchone()[0]
+        tree.insert('', 'end', values=(item_id, name, price))
+    
         
     Button(add_frame, text="Add Item", command=add_item, bg="#4caf50", fg="white", font=("Helvetica", 10), width=12).place(x=100, y=50)
 
@@ -69,11 +76,14 @@ def show_menu(con):
         selected = tree.focus()
         if selected:
             item_id = tree.item(selected)['values'][0]
+            
             cur = con.cursor()
-            cur.execute("DELETE FROM Item WHERE Item_id = %s", (item_id,))
+                # Call the stored procedure
+            cur.callproc('RemoveMenuItem', [item_id])
             con.commit()
             tree.delete(selected)
             messagebox.showinfo('Success', "Item removed!")
+            
         else:
             messagebox.showwarning("Selection Error", "Please select an item to remove.")
             

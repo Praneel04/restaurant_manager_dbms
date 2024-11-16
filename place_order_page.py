@@ -120,21 +120,22 @@ def place_order(con):
         # Calculate total amount for the order
         total_amount = sum(float(item[2]) * item[3] for item in selected_items)  # Price * Quantity
 
-        # Insert the order into the Orders table
-        cur.execute("INSERT INTO Orders (CustomerID, TotalAmount, OrderTime, Status, Notes, StaffID, TableID) VALUES (%s, %s, NOW(), 'Pending', '', %s, %s)", (customer_id, total_amount, staff_id, table_id))
+        
+            # Call stored procedure to place the order
+        new_id=0
+        ord_id=cur.callproc('PlaceOrder', [customer_id, total_amount, staff_id, table_id,new_id])
         con.commit()
-        order_id = cur.lastrowid
 
-        # Insert each ordered item into the OrderDetails table
+            # Get the newly created order ID
+        cur.execute("SELECT LAST_INSERT_ID()")
+        order_id = cur.fetchone()[0]
+
+            # Insert each ordered item using a stored procedure
         for item in selected_items:
             quantity = item[3]
             unit_price = float(item[2])
             total_price = unit_price * quantity
-            cur.execute("INSERT INTO OrderDetails (OrderID, ItemID, Quantity, UnitPrice, TotalPrice) VALUES (%s, %s, %s, %s, %s)", (order_id, item[0], quantity, unit_price, total_price))
-        con.commit()
-
-        # Mark the table as occupied
-        cur.execute("UPDATE `Table` SET IsOccupied = TRUE WHERE Table_id = %s", (table_id,))
+            cur.callproc('AddOrderDetails', [order_id, item[0], quantity, unit_price, total_price])
         con.commit()
 
         messagebox.showinfo("Success", f"Order placed successfully! Order ID: {order_id}")
@@ -142,6 +143,8 @@ def place_order(con):
         for var in item_vars.values():
             var[0].set(0)  # Reset all quantities to 0
         selected_items_label.config(text="Selected Items:")
+        
+
 
     tk.Button(root, text="Place Order", command=handle_order_placement, bg="#2196f3", fg="white", font=("Helvetica", 12)).place(x=280, y=520)
 

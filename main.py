@@ -1,14 +1,14 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, StringVar
 import mysql.connector
-
+from user import manage_users
 # Import necessary modules
 from menu import show_menu
 from order import show_orders
 from place_order_page import place_order
 from customers import show_customers
 from staff import show_staff
-
+from reservation import reservation_page
 # Establish database connection
 con = mysql.connector.connect(
     host="localhost",
@@ -31,7 +31,10 @@ def customers_page():
 
 def staff_page():
     show_staff(con)
-
+def users_page():
+    manage_users(con)
+def reservations():
+    reservation_page(con)
 def enter():
     # Create a new window for options
     root = tk.Toplevel()
@@ -52,7 +55,8 @@ def enter():
     ttk.Button(button_frame, text="Menu", command=menu_page).grid(row=1, column=0, padx=20, pady=10)
     ttk.Button(button_frame, text="Place Order", command=placeorder_page).grid(row=1, column=1, padx=20, pady=10)
     ttk.Button(button_frame, text="Customers", command=customers_page).grid(row=2, column=0, padx=20, pady=10)
-
+    ttk.Button(button_frame, text="users", command=users_page).grid(row=2, column=1, padx=20, pady=10)
+    ttk.Button(button_frame, text="reservation", command=reservations).grid(row=3, column=0, padx=20, pady=10)
     # Optional: Add more buttons as needed
     # ttk.Button(button_frame, text="Feedback", command=show_feedback).grid(row=2, column=1, padx=20, pady=10)
 
