@@ -1,10 +1,13 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from feedback import feedback_page
+
 def show_orders(con):
     root = tk.Toplevel()
     root.title("Order Management")
-    root.geometry("900x600")
+    
+    
+    
 
     # Tabs for separating pending and paid/done orders
     tab_control = ttk.Notebook(root)
@@ -16,8 +19,9 @@ def show_orders(con):
 
     # Style Treeviews
     style = ttk.Style()
-    style.configure("Treeview", rowheight=30)
-    style.configure("Treeview.Heading", font=("Helvetica", 12, "bold"))
+    style.theme_use("clam")  # Modern-looking theme
+    style.configure("Treeview", rowheight=30, font=("Helvetica", 11), background="#f2f2f2", fieldbackground="#f2f2f2")
+    style.configure("Treeview.Heading", font=("Helvetica", 13, "bold"), background="#4CAF50", foreground="white")
     
     # Pending Orders Treeview
     pending_tree = ttk.Treeview(pending_tab, columns=("OrderID", "Items", "ItemDetails", "TotalAmount"), show="headings")
@@ -28,7 +32,7 @@ def show_orders(con):
     pending_tree.column("Items", width=250)
     pending_tree.column("ItemDetails", width=350)
     pending_tree.column("TotalAmount", width=100)
-    pending_tree.pack(fill="both", expand=True, padx=10, pady=10)
+    pending_tree.pack(fill="both", expand=True, padx=20, pady=20)
 
     # Paid/Done Orders Treeview
     done_tree = ttk.Treeview(done_tab, columns=("OrderID", "Items", "ItemDetails", "TotalAmount"), show="headings")
@@ -39,7 +43,7 @@ def show_orders(con):
     done_tree.column("Items", width=250)
     done_tree.column("ItemDetails", width=350)
     done_tree.column("TotalAmount", width=100)
-    done_tree.pack(fill="both", expand=True, padx=10, pady=10)
+    done_tree.pack(fill="both", expand=True, padx=20, pady=20)
 
     # Fetch pending orders
     cur = con.cursor()
@@ -114,20 +118,21 @@ def show_orders(con):
     def open_payment_window(order_id, total_amount):
         payment_window = tk.Toplevel(root)
         payment_window.title("Payment")
-        payment_window.geometry("400x400")
-        tk.Label(payment_window, text="Payment Window", font=("Helvetica", 14, "bold")).pack(pady=10)
+        payment_window.geometry("500x300")
+        payment_window.configure(bg="#e1f5fe")
+        tk.Label(payment_window, text="Payment Window", font=("Helvetica", 14, "bold"), bg="#e1f5fe").pack(pady=10)
 
-        tk.Label(payment_window, text=f"Total Amount Due: {total_amount}", font=("Helvetica", 12)).pack(pady=5)
+        tk.Label(payment_window, text=f"Total Amount Due: {total_amount}", font=("Helvetica", 12), bg="#e1f5fe").pack(pady=5)
 
-        tk.Label(payment_window, text="Amount Paid:").pack(pady=5)
+        tk.Label(payment_window, text="Amount Paid:", bg="#e1f5fe").pack(pady=5)
         amount_entry = tk.Entry(payment_window)
         amount_entry.pack(pady=5)
 
-        tk.Label(payment_window, text="Mode of Payment:").pack(pady=5)
+        tk.Label(payment_window, text="Mode of Payment:", bg="#e1f5fe").pack(pady=5)
         mode_of_payment = tk.StringVar()
         ttk.Combobox(payment_window, textvariable=mode_of_payment, values=["Cash", "Credit Card", "Debit Card", "UPI", "Net Banking"]).pack(pady=5)
 
-        tk.Button(payment_window, text="Confirm Payment", command=lambda: confirm_payment(order_id, total_amount, amount_entry.get(), mode_of_payment.get(), payment_window)).pack(pady=10)
+        tk.Button(payment_window, text="Confirm Payment", command=lambda: confirm_payment(order_id, total_amount, amount_entry.get(), mode_of_payment.get(), payment_window), bg="#2196f3", fg="white").pack(pady=10)
 
     # Function to handle payment confirmation
     def confirm_payment(order_id, total_amount, amount, mode, window):
@@ -142,8 +147,8 @@ def show_orders(con):
                 cur.execute("SELECT TableID FROM Orders WHERE OrderID = %s", (order_id,))
                 table_id = cur.fetchone()
                 if table_id:
-                # Mark the table as unoccupied
-                    cur.execute("UPDATE `Table` SET IsOccupied = FALSE WHERE Table_id = %s", (table_id[0],))
+                    # Mark the table as unoccupied
+                    cur.execute("UPDATE `Tables` SET IsOccupied = FALSE WHERE Table_id = %s", (table_id[0],))
                 con.commit()
                 window.destroy()
                 feedback_page(con, order_id)
@@ -151,8 +156,8 @@ def show_orders(con):
             messagebox.showerror("Invalid Amount", "Please enter a valid numeric amount.")
 
     # Buttons for marking orders as paid
-    button_frame = tk.Frame(pending_tab)
+    button_frame = tk.Frame(pending_tab, bg="#f1f8e9")
     button_frame.pack(pady=10)
-    tk.Button(button_frame, text="Mark as Paid & Pay", command=mark_order_paid, bg="#2196f3", fg="white", font=("Helvetica", 12)).pack()
+    tk.Button(button_frame, text="Mark as Paid & Pay", command=mark_order_paid, bg="#4caf50", fg="white", font=("Helvetica", 12)).pack()
 
     root.mainloop()

@@ -31,7 +31,7 @@ BEGIN
     SET newOrderID = LAST_INSERT_ID();
     
     -- Mark the table as occupied
-    UPDATE `Table` SET IsOccupied = TRUE WHERE Table_id = tableID;
+    UPDATE `Tables` SET IsOccupied = TRUE WHERE Table_id = tableID;
 END $$
 DELIMITER ;
 DELIMITER $$
@@ -58,7 +58,7 @@ BEGIN
     DECLARE max_capacity INT;
 
     -- Check the table capacity
-    SELECT Total_people INTO max_capacity FROM `Table` WHERE Table_id = p_table_id;
+    SELECT Total_people INTO max_capacity FROM `Tables` WHERE Table_id = p_table_id;
 
     -- If the number of people exceeds the table's capacity, signal an error
     IF p_num_people > max_capacity THEN
@@ -70,7 +70,7 @@ BEGIN
         VALUES (p_table_id, p_customer_id, p_reservation_time, p_num_people);
 
         -- Mark the table as occupied
-        UPDATE `Table` SET IsOccupied = TRUE WHERE Table_id = p_table_id;
+        UPDATE `Tables` SET IsOccupied = TRUE WHERE Table_id = p_table_id;
     END IF;
 END$$
 DELIMITER ;

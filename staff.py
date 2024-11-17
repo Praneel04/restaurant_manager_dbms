@@ -4,23 +4,21 @@ from tkinter import ttk, messagebox
 def show_staff(con):
     root = tk.Toplevel()
     root.title("Staff Management")
-    root.geometry("1000x500")
+    root.geometry("1000x600")
+    root.configure(bg="#f4f4f4")
+
+    # Custom style for treeview
+    style = ttk.Style()
+    style.configure("Treeview", font=("Helvetica", 10), rowheight=25)
+    style.configure("Treeview.Heading", font=("Helvetica", 12, "bold"))
 
     # Treeview to display staff
     staff_tree = ttk.Treeview(root, columns=("StaffID", "Name", "Email", "Phone", "StaffType", "Rating"), show="headings")
-    staff_tree.heading("StaffID", text="Staff ID")
-    staff_tree.heading("Name", text="Name")
-    staff_tree.heading("Email", text="Email")
-    staff_tree.heading("Phone", text="Phone")
-    staff_tree.heading("StaffType", text="Staff Type")
-    staff_tree.heading("Rating", text="Rating")
-    staff_tree.column("StaffID", width=100, anchor="center")
-    staff_tree.column("Name", width=150, anchor="center")
-    staff_tree.column("Email", width=200, anchor="center")
-    staff_tree.column("Phone", width=150, anchor="center")
-    staff_tree.column("StaffType", width=150, anchor="center")
-    staff_tree.column("Rating", width=100, anchor="center")
-    staff_tree.pack(fill="both", expand=True, padx=10, pady=10)
+    for col in ("StaffID", "Name", "Email", "Phone", "StaffType", "Rating"):
+        staff_tree.heading(col, text=col, anchor="center")
+        staff_tree.column(col, anchor="center", width=150)
+    staff_tree.column("StaffID", width=100)
+    staff_tree.pack(fill="both", expand=True, padx=20, pady=20)
 
     # Fetch staff from the database
     cur = con.cursor()
@@ -77,26 +75,26 @@ def show_staff(con):
                     messagebox.showerror("Error", f"An error occurred: {e}")
 
     # Frame for adding new staff
-    add_frame = tk.Frame(root)
+    add_frame = tk.Frame(root, bg="#e1f5fe", padx=10, pady=10)
     add_frame.pack(pady=10)
 
-    tk.Label(add_frame, text="Name:").grid(row=0, column=0, padx=5, pady=5)
+    tk.Label(add_frame, text="Name:", bg="#e1f5fe").grid(row=0, column=0, padx=5, pady=5)
     name_entry = tk.Entry(add_frame)
     name_entry.grid(row=0, column=1, padx=5, pady=5)
 
-    tk.Label(add_frame, text="Email:").grid(row=0, column=2, padx=5, pady=5)
+    tk.Label(add_frame, text="Email:", bg="#e1f5fe").grid(row=0, column=2, padx=5, pady=5)
     email_entry = tk.Entry(add_frame)
     email_entry.grid(row=0, column=3, padx=5, pady=5)
 
-    tk.Label(add_frame, text="Phone:").grid(row=0, column=4, padx=5, pady=5)
+    tk.Label(add_frame, text="Phone:", bg="#e1f5fe").grid(row=0, column=4, padx=5, pady=5)
     phone_entry = tk.Entry(add_frame)
     phone_entry.grid(row=0, column=5, padx=5, pady=5)
 
-    tk.Label(add_frame, text="Staff Type:").grid(row=1, column=0, padx=5, pady=5)
+    tk.Label(add_frame, text="Staff Type:", bg="#e1f5fe").grid(row=1, column=0, padx=5, pady=5)
     staff_type_entry = tk.Entry(add_frame)
     staff_type_entry.grid(row=1, column=1, padx=5, pady=5)
 
-    tk.Label(add_frame, text="Rating:").grid(row=1, column=2, padx=5, pady=5)
+    tk.Label(add_frame, text="Rating:", bg="#e1f5fe").grid(row=1, column=2, padx=5, pady=5)
     rating_entry = tk.Entry(add_frame)
     rating_entry.grid(row=1, column=3, padx=5, pady=5)
 

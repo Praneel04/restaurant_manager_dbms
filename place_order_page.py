@@ -4,7 +4,9 @@ from tkinter import ttk, messagebox
 def place_order(con):
     root = tk.Toplevel()
     root.title("Place Order")
-    root.geometry("750x600")
+    
+
+    
 
     # Load menu items from the database
     cur = con.cursor()
@@ -12,7 +14,7 @@ def place_order(con):
     menu_items = cur.fetchall()
 
     # Load available tables
-    cur.execute("SELECT Table_id FROM `table` WHERE IsOccupied = FALSE")
+    cur.execute("SELECT Table_id FROM `tables` WHERE IsOccupied = FALSE")
     available_tables = [row[0] for row in cur.fetchall()]
 
     # Load available staff
@@ -20,13 +22,13 @@ def place_order(con):
     available_staff = cur.fetchall()
 
     # Frame for displaying menu with quantity inputs
-    menu_frame = tk.Frame(root)
-    menu_frame.place(x=20, y=20, width=700, height=250)
+    menu_frame = tk.Frame(root, bg="#e3f2fd", bd=2, relief="solid")
+    menu_frame.place(x=20, y=20, width=700, height=300)
 
     # Scrollable canvas for the menu
-    canvas = tk.Canvas(menu_frame)
+    canvas = tk.Canvas(menu_frame, bg="#e1f5fe")
     scrollbar = tk.Scrollbar(menu_frame, orient="vertical", command=canvas.yview)
-    scrollable_frame = tk.Frame(canvas)
+    scrollable_frame = tk.Frame(canvas, bg="#e1f5fe")
 
     scrollable_frame.bind(
         "<Configure>",
@@ -45,10 +47,10 @@ def place_order(con):
     item_vars = {}
     for item in menu_items:
         item_id, name, price = item
-        item_frame = tk.Frame(scrollable_frame)
-        item_frame.pack(fill="x", padx=5, pady=2)
+        item_frame = tk.Frame(scrollable_frame, bg="#bbdefb")
+        item_frame.pack(fill="x", padx=5, pady=5)
 
-        tk.Label(item_frame, text=f"{name} (ID: {item_id}, Price: {price})", anchor="w", width=40).pack(side="left")
+        tk.Label(item_frame, text=f"{name} (ID: {item_id}, Price: {price})", anchor="w", width=40, bg="#bbdefb").pack(side="left")
         quantity_var = tk.IntVar(value=0)  # Default quantity is 0
         quantity_entry = tk.Spinbox(item_frame, from_=0, to=100, textvariable=quantity_var, width=5)
         quantity_entry.pack(side="right")
@@ -58,28 +60,28 @@ def place_order(con):
 
     # Frame for order details
     order_frame = tk.Frame(root, bg="#f0f0f0", bd=2, relief="solid")
-    order_frame.place(x=20, y=300, width=700, height=200)
+    order_frame.place(x=20, y=340, width=700, height=220)
 
-    tk.Label(order_frame, text="Customer ID:", font=("Helvetica", 10), bg="#f0f0f0").place(x=10, y=10)
-    customer_id_entry = tk.Entry(order_frame, width=15, font=("Helvetica", 10))
-    customer_id_entry.place(x=100, y=10)
+    tk.Label(order_frame, text="Customer ID:", font=("Helvetica", 12), bg="#f0f0f0").place(x=10, y=10)
+    customer_id_entry = tk.Entry(order_frame, width=20, font=("Helvetica", 12))
+    customer_id_entry.place(x=150, y=10)
 
     # Dropdown for selecting table
-    tk.Label(order_frame, text="Select Table:", font=("Helvetica", 10), bg="#f0f0f0").place(x=10, y=50)
+    tk.Label(order_frame, text="Select Table:", font=("Helvetica", 12), bg="#f0f0f0").place(x=10, y=50)
     selected_table = tk.IntVar()
     table_dropdown = ttk.Combobox(order_frame, textvariable=selected_table, state="readonly")
     table_dropdown['values'] = available_tables
-    table_dropdown.place(x=100, y=50)
+    table_dropdown.place(x=150, y=50)
 
     # Dropdown for selecting staff
-    tk.Label(order_frame, text="Select Staff:", font=("Helvetica", 10), bg="#f0f0f0").place(x=300, y=50)
+    tk.Label(order_frame, text="Select Staff:", font=("Helvetica", 12), bg="#f0f0f0").place(x=350, y=50)
     selected_staff = tk.StringVar()
     staff_dropdown = ttk.Combobox(order_frame, textvariable=selected_staff, state="readonly")
     staff_dropdown['values'] = [f"{staff[0]} - {staff[1]}" for staff in available_staff]
-    staff_dropdown.place(x=400, y=50)
+    staff_dropdown.place(x=500, y=50)
 
     # Label to display selected items summary
-    selected_items_label = tk.Label(order_frame, text="Selected Items:", bg="#f0f0f0", justify="left", font=("Helvetica", 10))
+    selected_items_label = tk.Label(order_frame, text="Selected Items:", bg="#f0f0f0", justify="left", font=("Helvetica", 12))
     selected_items_label.place(x=10, y=90)
 
     # Function to calculate and display selected items
@@ -93,7 +95,7 @@ def place_order(con):
             selected_items_label.config(text="Selected Items:")
 
     # Add a button to update the selected items summary
-    tk.Button(order_frame, text="Update Selection", command=update_selected_items, bg="#4caf50", fg="white").place(x=400, y=10)
+    tk.Button(order_frame, text="Update Selection", command=update_selected_items, bg="#4caf50", fg="white", font=("Helvetica", 12)).place(x=500, y=10)
 
     # Function to place the order
     def handle_order_placement():
@@ -120,17 +122,16 @@ def place_order(con):
         # Calculate total amount for the order
         total_amount = sum(float(item[2]) * item[3] for item in selected_items)  # Price * Quantity
 
-        
-            # Call stored procedure to place the order
-        new_id=0
-        ord_id=cur.callproc('PlaceOrder', [customer_id, total_amount, staff_id, table_id,new_id])
+        # Call stored procedure to place the order
+        new_id = 0
+        ord_id = cur.callproc('PlaceOrder', [customer_id, total_amount, staff_id, table_id, new_id])
         con.commit()
 
-            # Get the newly created order ID
+        # Get the newly created order ID
         cur.execute("SELECT LAST_INSERT_ID()")
         order_id = cur.fetchone()[0]
 
-            # Insert each ordered item using a stored procedure
+        # Insert each ordered item using a stored procedure
         for item in selected_items:
             quantity = item[3]
             unit_price = float(item[2])
@@ -143,9 +144,7 @@ def place_order(con):
         for var in item_vars.values():
             var[0].set(0)  # Reset all quantities to 0
         selected_items_label.config(text="Selected Items:")
-        
 
-
-    tk.Button(root, text="Place Order", command=handle_order_placement, bg="#2196f3", fg="white", font=("Helvetica", 12)).place(x=280, y=520)
+    tk.Button(root, text="Place Order", command=handle_order_placement, bg="#2196f3", fg="white", font=("Helvetica", 14)).place(x=300, y=550)
 
     root.mainloop()
