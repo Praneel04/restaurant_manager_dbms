@@ -9,7 +9,7 @@ from customers import show_customers
 from staff import show_staff
 from res_page import show_reservations
 from tables import show_tables
-
+from sales import sales_page
 # Database connection
 con = mysql.connector.connect(
     host="localhost",
@@ -26,7 +26,7 @@ def staff_page(): show_staff(con)
 def users_page(): manage_users(con)
 def reservations(): show_reservations(con)
 def tables_page(): show_tables(con)
-
+def sales(): sales_page(con)
 def enter():
     root = tk.Toplevel()
     root.title("Restaurant Management - Dashboard")
@@ -60,7 +60,8 @@ def enter():
         ("Customers", customers_page),
         ("Users", users_page),
         ("Reservations", reservations),
-        ("Tables", tables_page)
+        ("Tables", tables_page),
+        ("Sales", sales)
     ]
 
     def on_enter(event):
@@ -93,6 +94,7 @@ def submit():
         result = cur.fetchone()
         if result:
             messagebox.showinfo("Login Successful", "Welcome!")
+            r.destroy()
             enter()
         else:
             messagebox.showwarning("Login Failed", "Invalid username or password.")
@@ -102,7 +104,6 @@ def submit():
 # Main Login Page
 r = tk.Tk()
 r.title("Login - Restaurant Management System")
-r.attributes('-fullscreen', True)  # Enable full-screen for login as well
 bg_color = "#343a40"  # Dark background
 text_color = "#f8f9fa"  # Light text for readability
 r.configure(bg=bg_color)

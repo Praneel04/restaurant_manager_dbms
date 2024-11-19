@@ -56,7 +56,6 @@ def show_reservations(con):
                 # Remove the reservation
                 cur.execute("DELETE FROM Reservation WHERE Reservation_id = %s", (reservation_id,))
                 # Mark the table as unoccupied
-                cur.execute("UPDATE `Tables` SET IsOccupied = FALSE WHERE Table_id = %s", (table_id,))
                 con.commit()
                 tree.delete(item)
                 messagebox.showinfo("Success", "Reservation completed successfully and table is now available.")
@@ -74,7 +73,6 @@ def show_reservations(con):
                 # Remove the reservation
                 cur.execute("DELETE FROM Reservation WHERE Reservation_id = %s", (reservation_id,))
                 # Mark the table as unoccupied
-                cur.execute("UPDATE `Tables` SET IsOccupied = FALSE WHERE Table_id = %s", (table_id,))
                 con.commit()
                 tree.delete(item)
                 messagebox.showinfo("Success", "Reservation cancelled successfully and table is now available.")
